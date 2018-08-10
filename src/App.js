@@ -1,26 +1,7 @@
 import React, { Component } from "react";
 import startWith from "callbag-start-with";
-const { interval, pipe, concat } = require("callbag-basics");
-const merge = require("callbag-merge");
-
-const dogFetch = breed =>
-  fetch(`https://dog.ceo/api/breed/${breed}/images/random`)
-    .then(resp => resp.json())
-    .then(({ message }) => message);
-
-const dogFetchCallbag = initialBreed => source => (start, sink) => {
-  if (start !== 0) {
-    return;
-  }
-  let breed = initialBreed;
-  source(0, (t, d) => {
-    if (t === 0 || t === 2) {
-      sink(t, d);
-    } else if (t === 1) {
-      dogFetch(breed).then(imgSrc => sink(1, imgSrc));
-    }
-  });
-};
+import dogFetchCallbag from "./dog-fetch-callbag";
+const { interval, pipe } = require("callbag-basics");
 
 class App extends Component {
   state = {
@@ -28,6 +9,7 @@ class App extends Component {
     breed: "akita"
   };
   componentDidMount() {
+    // Creates a stream that fetches an image URL of a dog, starting with the initial breed.
     const source = pipe(
       interval(10000),
       startWith(1),
@@ -35,17 +17,24 @@ class App extends Component {
     );
     source(0, (t, d) => {
       if (t === 0) {
+        // The source has recognized our subscription.
+        // Store a reference to the talkback in the component for later use.
         this.talkback = d;
       } else if (t === 1) {
+        // We have received data. Update the component.
         this.setState({ imgSrc: d });
       }
     });
   }
   componentWillUnmount() {
+    // Tell the source that we're done (unsubscribe).
     this.talkback(2);
   }
   handleBreedChange = e => {
-    this.setState({ breed: e.target.value });
+    this.setState({ breed: e.target.value }, () => {
+      // Tell the dogFetch source to use the new breed.
+      this.talkback(1, this.state.breed);
+    });
   };
 
   render() {
@@ -56,7 +45,7 @@ class App extends Component {
         <div>
           <form>
             <label>
-              Pick your favorite flavor:
+              Pick your dog breed:
               <select value={breed} onChange={this.handleBreedChange}>
                 <option value="akita">Akita</option>
                 <option value="boxer">Boxer</option>
