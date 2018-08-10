@@ -49,6 +49,7 @@ class App extends Component {
               <select value={breed} onChange={this.handleBreedChange}>
                 <option value="akita">Akita</option>
                 <option value="boxer">Boxer</option>
+                <option value="pug">Pug</option>
                 <option value="terrier/yorkshire">Yorkshire Terrier</option>
               </select>
             </label>
