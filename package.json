@@ -4,9 +4,6 @@
   "private": true,
   "dependencies": {
     "callbag-basics": "^3.0.0",
-    "callbag-merge": "^3.1.0",
-    "callbag-pausable-interval": "^1.0.0",
-    "callbag-sample": "^2.0.0",
     "callbag-start-with": "^3.1.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
